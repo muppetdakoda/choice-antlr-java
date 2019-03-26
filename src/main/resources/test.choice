@@ -1,0 +1,30 @@
+=> {
+  // example choice
+  -> "choice", "Choice" ~ #shop;
+  // example if statement
+  -if(1 > 0)-> {
+    ~> true;
+    ~> ["Extra parameters", false, 42, "#ffffff"];
+    ~> {
+      someValue: true;
+      someOtherValue: "Hello World!";
+      aNumber: 4;
+    };
+    -> 2 < 1 -> "choice-1", "Choice 1" ~ 1;
+    -> "choice-2", "Choice 2" ~ {
+      ~> ["asdasd"];
+      -> "select-1" ~ [2, 1];
+      -> "select-2" ~ [2, 2] -then-> #exit;
+    };
+  }-else-> {
+    ~> false;
+  };
+  // example switch statement
+  -switch(#:player.class)-> {
+    "warrior" -> ~ "quest", "Quest" ~ #:player.qiveQuest(#getQuest(122))
+    "mage" -> "quest", "Quest" ~ #:player.giveQuest(#getQuest(123));
+    "archer" -> ~ // unnecessary statement; just an FYI
+  };
+  // a ternary operator can be used to accept choices too, not branches
+  -> #:player.level == 10 -> "choice-1" ~ ["Picked choice 1", 1];
+};
