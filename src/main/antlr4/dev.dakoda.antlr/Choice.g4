@@ -1,0 +1,76 @@
+grammar Choice;
+choice: root;
+
+TRUE: T R U E;
+FALSE: F A L S E;
+WS: [ \t\r] -> skip;
+ROOT_START: ROOT;
+BRANCH_START: BRANCH;
+VAR_START: VAR;
+NEST_START: '{';
+NEST_END: '};';
+TEXT_CHARACTER_RESTRICTED: ([A-z0-9]);
+TEXT_CHARACTER: ([A-z0-9-]|[ ]|[?!()]);
+STRING: QUOTE TEXT_CHARACTER+ QUOTE;
+STRING_RESTRICTED: QUOTE TEXT_CHARACTER_RESTRICTED+ QUOTE;
+ANY_NUMBER: [0-9];
+POSITIVE_NUMBER: [1-9];
+INTEGER: ('0' | POSITIVE_NUMBER ANY_NUMBER*);
+FLOAT: ('0' | POSITIVE_NUMBER ANY_NUMBER*) ('.' ANY_NUMBER* POSITIVE_NUMBER*)?;
+WHITESPACE: (' '|'\t');
+NEWLINE: ('\r'?'\n'|'\r');
+STATEMENT_END: ';';
+
+displayString: STRING;
+float: FLOAT;
+integer: INTEGER;
+number: integer | float;
+boolean: TRUE | FALSE;
+restrictedString: STRING_RESTRICTED | '""';
+string: restrictedString | displayString;
+arrayOfValues: '[ ' arrayContents ' ]';
+arrayContents: (simpleVariable (',' simpleVariable)*);
+simpleVariable: (boolean | string | number);
+variable: (simpleVariable | arrayOfValues);
+
+rootStart: ROOT_START variable? NEST_START NEWLINE;
+rootEnd: NEST_END;
+root: rootStart (NEWLINE | branch | branchVar)* rootEnd;
+
+branch: simpleBranch | blankBranch;
+blankBranch: BRANCH_START restrictedString (',' displayString)? '~' STATEMENT_END? NEWLINE;
+simpleBranch: BRANCH_START restrictedString (',' displayString)? '~' variable STATEMENT_END NEWLINE;
+
+branchVar: VAR_START variable STATEMENT_END NEWLINE;
+
+fragment A: 'a';
+fragment B: 'b';
+fragment C: 'c';
+fragment D: 'd';
+fragment E: 'e';
+fragment F: 'f';
+fragment G: 'g';
+fragment H: 'h';
+fragment I: 'i';
+fragment J: 'j';
+fragment K: 'k';
+fragment L: 'l';
+fragment M: 'm';
+fragment N: 'n';
+fragment O: 'o';
+fragment P: 'p';
+fragment Q: 'q';
+fragment R: 'r';
+fragment S: 's';
+fragment T: 't';
+fragment U: 'u';
+fragment V: 'v';
+fragment W: 'w';
+fragment X: 'x';
+fragment Y: 'y';
+fragment Z: 'z';
+fragment COMMA: ',';
+fragment QUOTE: '"';
+fragment ROOT: '=>';
+fragment VAR: '~>';
+fragment BRANCH: '->';
