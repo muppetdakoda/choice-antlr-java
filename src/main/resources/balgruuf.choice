@@ -1,0 +1,15 @@
+=> {
+  ~> {
+    conversationStart: "Well. I trust you have something vitally important to tell me. Important enough to interrupt me in the middle of council?",
+  };
+  -> "1", "A dragon destroyed Helgen. Alvor is afraid Riverwood is next." ~ "Alvor? The smith, isn't he? Reliable, solid fellow. Not prone to flights of fancy... And you're sure Helgen was destroyed by a dragon? This wasn't some Stormcloak raid gone wrong?" {
+    -> "1.1", "Yes. I had a great view while the Imperials were trying to cut off my head." ~ "Really? You're certainly... forthright about your criminal past. But it's none of my concern who the Imperials want to execute. Especially now. What I want to know is what exactly happened at Helgen.";
+    -> "1.2", "I was there. I saw the dragon burn Helgen to the ground." ~ "By Ysmir, Irileth was right!";
+  };
+  -> "2", "I have news from Helgen. About the dragon attack." ~ "You were at Helgen when it was attacked? You saw this dragon with your own eyes?" {
+    -> "2.1", "Yes. I had a great view while the Imperials were trying to cut off my head." ~ "Really? You're certainly... forthright about your criminal past. But it's none of my concern who the Imperials want to execute. Especially now. What I want to know is what exactly happened at Helgen." {
+      -> "2.1.1", "The Imperials were about to execute Ulfric Stormcloak. Then the dragon attacked." ~ "I should have guessed Ulfric would be mixed up in this.";
+      -> "2.1.2", "The dragon destroyed Helgen. And last I saw it was heading this way." ~ "By Ysmir, Irileth was right!";
+    };
+  };
+};
