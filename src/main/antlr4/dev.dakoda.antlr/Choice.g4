@@ -4,6 +4,8 @@ choice: root;
 WS: [ \t\r] -> skip;
 TRUE: T R U E;
 FALSE: F A L S E;
+ROOT_KEY: R O O T;
+HERE_KEY: H E R E;
 BOOLEAN_OPERATOR: GREATER_THAN | GREATER_THAN_EQUAL | LESS_THAN | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL;
 THEN: '-' T H E N '->';
 IF_PREFIX: '-' I F '(';
@@ -15,15 +17,12 @@ BRANCH_START: BRANCH;
 VAR_START: VAR;
 NEST_START: '{';
 NEST_END: '};';
-TEXT_CHARACTER_RESTRICTED: CHAR | ANY_NUMBER;
-TEXT_CHARACTER: (CHAR | ANY_NUMBER | [-]|[ ]|[?!()]);
-STRING: QUOTE TEXT_CHARACTER+ QUOTE;
+INTEGER: [0-9] | [1-9][0-9]*;
+TEXT_CHARACTER_RESTRICTED: CHAR | INTEGER;
+TEXT_CHARACTER: (CHAR | INTEGER | [- ?!(){}'/$#.,:+%^*@\\~|£<>]);
+STRING: QUOTE (TEXT_CHARACTER | ';')+ QUOTE;
 CHAR: [A-z];
-ANY_CHAR: A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z;
-ANY_NUMBER: [0-9];
-POSITIVE_NUMBER: [1-9];
-INTEGER: POSITIVE_NUMBER (ANY_NUMBER*);
-FLOAT: ([0] | POSITIVE_NUMBER ANY_NUMBER*) ('.' ANY_NUMBER* POSITIVE_NUMBER*)?;
+FLOAT: ([0] | [1-9][0-9]*) ('.' INTEGER [1-9]*)?;
 WHITESPACE: (' '|'\t');
 NEWLINE: ('\r'?'\n'|'\r');
 STATEMENT_END: ';';
@@ -32,21 +31,29 @@ METHOD: '#' TEXT_CHARACTER_RESTRICTED+;
 
 float: FLOAT;
 integer: INTEGER;
-number: integer | float;
+number: ('-')? (integer | float);
 boolean: TRUE | FALSE;
+
 branchName: STRING;
 switchCase: STRING;
 branchDisplay: STRING;
 string: STRING;
-arrayOfValues: '[' arrayContents ']';
-arrayContents: (simpleVariable (',' simpleVariable)*);
-simpleVariable: (boolean | string | number);
-variable: (simpleVariable | arrayOfValues);
-method: METHOD;
+
+arrayOfValues: '[' commaSeparatedVariables ']';
+commaSeparatedVariables: (simpleVariable (',' simpleVariable)*);
+simpleVariable: (boolean | string | number | ('-')? variableKeywords);
+variable: simpleVariable | arrayOfValues;
+method: ('-')? (methodWithoutParams | methodWithParams) methodInnerVariable*?;
+methodInnerVariable: ('.' TEXT_CHARACTER_RESTRICTED+);
+methodWithoutParams: METHOD;
+methodWithParams: METHOD '(' (variable | commaSeparatedVariables | method) ')';
 methods: method (',' method)*?;
 booleanExpression: boolean | simpleBooleanExpression | reversedBoolean;
 simpleBooleanExpression: (number | method) BOOLEAN_OPERATOR (number | method);
 reversedBoolean: '!('  simpleBooleanExpression ')';
+
+variableKeywords: (HERE_KEY | ROOT_KEY) variableKeywordInnerVariable*?;
+variableKeywordInnerVariable: ('.' TEXT_CHARACTER_RESTRICTED+);
 
 content: (NEWLINE | branch | branchVar | selector)*;
 elseContent: (NEWLINE | branch | branchVar | selector)*;
@@ -66,18 +73,20 @@ ifBranchTernary: BRANCH_START booleanExpression branch;
 
 branchVar: branchSimpleVar | branchNestingVar;
 branchSimpleVar: VAR_START variable STATEMENT_END NEWLINE;
-branchNestingVar: VAR_START NEST_START NEWLINE branchNestingVarContent nestEnd;
-branchNestingVarContent: keyValuePair*;
+branchNestingVar: VAR_START simpleNest;
+simpleNest: NEST_START NEWLINE branchNestingVarContent nestEnd;
+varNest: NEST_START NEWLINE branchNestingVarContent '}';
+branchNestingVarContent: (keyValuePair | NEWLINE)*;
 key: STRING;
-value: (simpleVariable | arrayOfValues);
+value: (simpleVariable | varNest | arrayOfValues);
 keyValuePair: key ':' value ',' NEWLINE;
 
 selector: if | switch;
-switch: '-switch(' (number | string | method) ')->' NEST_START switchContent nestEnd;
+switch: '-switch(' (variable | method | variableKeywords) ')->' NEST_START switchContent nestEnd;
 switchContent: (NEWLINE | switchBranch)*;
 if: normalIf | ifElse;
-normalIf: '-if(' booleanExpression ')->' NEST_START content nestEnd;
-ifElse: '-if(' booleanExpression ')->' NEST_START content '}' ELSE NEST_START elseContent nestEnd;
+normalIf: '-if(' (booleanExpression | variableKeywords) ')->' NEST_START content nestEnd;
+ifElse: '-if(' (booleanExpression | variableKeywords) ')->' NEST_START content '}' ELSE NEST_START elseContent nestEnd;
 
 
 fragment A: 'a';
