@@ -1,5 +1,4 @@
 grammar Choice;
-choice: root;
 
 WS: [ \t\r] -> skip;
 TRUE: 'true';
@@ -29,27 +28,27 @@ STATEMENT_END: ';';
 EMPTY_STRING: '""';
 METHOD: '#' TEXT_CHARACTER_RESTRICTED+;
 
-float: FLOAT;
-integer: INTEGER;
-number: ('-')? (integer | float);
-boolean: TRUE | FALSE;
+varFloat: FLOAT;
+varInteger: INTEGER;
+varNumber: ('-')? (varInteger | varFloat);
+varBoolean: TRUE | FALSE;
 
+varString: STRING;
 branchName: STRING;
 switchCase: STRING;
 branchDisplay: STRING;
-string: STRING;
 
 arrayOfValues: '[' commaSeparatedVariables ']';
 commaSeparatedVariables: (simpleVariable (',' simpleVariable)*);
-simpleVariable: (boolean | string | number | ('-')? variableKeywords);
+simpleVariable: (varBoolean | varString | varNumber | ('-')? variableKeywords);
 variable: simpleVariable | arrayOfValues;
 method: ('-')? (methodWithoutParams | methodWithParams) methodInnerVariable*?;
 methodInnerVariable: ('.' TEXT_CHARACTER_RESTRICTED+);
 methodWithoutParams: METHOD;
 methodWithParams: METHOD '(' (variable | commaSeparatedVariables | method) ')';
 methods: method (',' method)*?;
-booleanExpression: boolean | simpleBooleanExpression | reversedBoolean;
-simpleBooleanExpression: (number | method) BOOLEAN_OPERATOR (number | method);
+booleanExpression: varBoolean | simpleBooleanExpression | reversedBoolean;
+simpleBooleanExpression: (varNumber | method) BOOLEAN_OPERATOR (varNumber | method);
 reversedBoolean: '!('  simpleBooleanExpression ')';
 
 variableKeywords: (HERE_KEY | ROOT_KEY) variableKeywordInnerVariable*?;
@@ -81,9 +80,9 @@ key: TEXT_CHARACTER_RESTRICTED+;
 value: (simpleVariable | varNest | arrayOfValues);
 keyValuePair: key ':' value ',' NEWLINE;
 
-selector: if | switch;
-switch: '-switch(' (variable | method | variableKeywords) ')->' NEST_START switchContent nestEnd;
-switchContent: (NEWLINE | switchBranch)*;
-if: normalIf | ifElse;
-normalIf: '-if(' (booleanExpression | variableKeywords) ')->' NEST_START content nestEnd;
-ifElse: '-if(' (booleanExpression | variableKeywords) ')->' NEST_START content '}' ELSE NEST_START elseContent nestEnd;
+selector: selectorIf | selectorSwitch;
+selectorSwitch: '-switch(' (variable | method | variableKeywords) ')->' NEST_START selectorSwitchContent nestEnd;
+selectorSwitchContent: (NEWLINE | switchBranch)*;
+selectorIf: selectorIfNormal | selectorIfElse;
+selectorIfNormal: '-if(' (booleanExpression | variableKeywords) ')->' NEST_START content nestEnd;
+selectorIfElse: '-if(' (booleanExpression | variableKeywords) ')->' NEST_START content '}' ELSE NEST_START elseContent nestEnd;
