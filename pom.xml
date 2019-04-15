@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.dakoda</groupId>
-    <artifactId>java-choice</artifactId>
+    <artifactId>choice-antlr-java</artifactId>
     <version>0.0.0</version>
     <build>
         <plugins>
